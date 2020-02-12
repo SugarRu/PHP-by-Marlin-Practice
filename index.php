@@ -16,22 +16,12 @@
 </head>
 
 <?php 
-$comments = [
-    ['user_image' => 'img/no-user.jpg',
-    'user_name' => 'John Doe',
-    'comment_date' => date('Y-m-d'),
-    'user_comment' => 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe aspernatur, ullam doloremque deleniti, sequi obcaecati.'],
+    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+    $pdo = new PDO('mysql:host=localhost;dbname=marlin_php', 'root', '', $options);
 
-    ['user_image' => 'img/no-user.jpg',
-    'user_name' => 'John Doee',
-    'comment_date' => date('Y-m-d'),
-    'user_comment' => 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe aspernatur, ullam doloremque deleniti, sequi obcaecati.'],
-
-    ['user_image' => 'img/no-user.jpg',
-    'user_name' => 'John Dee',
-    'comment_date' => date('Y-m-d'),
-    'user_comment' => 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe aspernatur, ullam doloremque deleniti, sequi obcaecati.'],
-];
+    $sql = 'SELECT * FROM comments';
+    $STH = $pdo->prepare($sql);
+    $STH->execute();
 ?>
 
 <body>
@@ -81,7 +71,7 @@ $comments = [
                                     Комментарий успешно добавлен
                                 </div>
 
-                                <?php foreach ($comments as $data): ?>
+                                <?php foreach ($STH as $data): ?>
 
                                     <div class="media">
                                         <img src=" <?php echo $data['user_image']; ?>" class="mr-3" alt="..." width="64" height="64">
