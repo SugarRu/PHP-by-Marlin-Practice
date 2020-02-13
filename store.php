@@ -1,4 +1,6 @@
 <?php 
+session_start();
+
 $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
 $pdo = new PDO('mysql:host=localhost;dbname=marlin_php', 'root', '', $options);
 
@@ -10,10 +12,5 @@ $STH->execute(array (
   'comment_date' => date('Y,m,d'),
   'user_comment' => $_POST['text']
 ));
-echo "Комментарий добавлен";
-?>
-
-
-<br>
-<br>
-<a href="http://marlinproject/"><button>На главную</button></a>
+$_SESSION['success'] = 1;
+header('Location: /');

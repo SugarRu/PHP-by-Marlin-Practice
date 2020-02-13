@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,6 +23,7 @@
     $sql = 'SELECT * FROM comments';
     $STH = $pdo->prepare($sql);
     $STH->execute();
+    var_dump($_SESSION['success']);
 ?>
 
 <body>
@@ -66,10 +68,17 @@
                                 <h3>Комментарии</h3>
                             </div>
 
-                            <div class="card-body">
-                                <div class="alert alert-success" role="alert">
-                                    Комментарий успешно добавлен
-                                </div>
+                            <?php 
+                                if ($_SESSION['success'] == 1) {
+                                    echo ' <div class="card-body">
+                                    <div class="alert alert-success" role="alert">
+                                        Комментарий успешно добавлен
+                                    </div>';
+                                    unset($_SESSION['success']);
+                                }
+                            ?>
+
+                           
 
                                 <?php foreach ($STH as $data): ?>
 
@@ -108,7 +117,7 @@
                                         <textarea name="text" required class="form-control" id="exampleFormControlTextarea1"
                                             rows="3"></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-success">Отправить</button>
+                                    <button type="submit" class="btn btn-success" name="submit">Отправить</button>
                                 </form>
                             </div>
                         </div>
