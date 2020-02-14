@@ -12,5 +12,6 @@ $STH->execute(array (
   'comment_date' => date('Y,m,d'),
   'user_comment' => $_POST['text']
 ));
-$_SESSION['success'] = 1;
+
+$_SESSION['success'] = 'Комментарий успешно добавлен';
 header('Location: /');

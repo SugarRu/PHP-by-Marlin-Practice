@@ -20,10 +20,9 @@
     $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
     $pdo = new PDO('mysql:host=localhost;dbname=marlin_php', 'root', '', $options);
 
-    $sql = 'SELECT * FROM comments';
+    $sql = 'SELECT * FROM comments ORDER BY id DESC';
     $STH = $pdo->prepare($sql);
-    $STH->execute();
-    var_dump($_SESSION['success']);
+    $STH->execute();    
 ?>
 
 <body>
@@ -69,18 +68,19 @@
                             </div>
 
                             <?php 
-                                if ($_SESSION['success'] == 1) {
-                                    echo ' <div class="card-body">
-                                    <div class="alert alert-success" role="alert">
-                                        Комментарий успешно добавлен
-                                    </div>';
+                                if ($_SESSION['success']) {
+                                    echo '<div class="card-body">
+                                    <div class="alert alert-success" role="alert">';
+                                    echo $_SESSION['success'];
+                                    echo '</div>';
                                     unset($_SESSION['success']);
                                 }
                             ?>
 
                            
 
-                                <?php foreach ($STH as $data): ?>
+                                <?php $comments = $STH;
+                                 foreach ($comments as $data): ?>
 
                                     <div class="media">
                                         <img src=" <?php echo $data['user_image']; ?>" class="mr-3" alt="..." width="64" height="64">
