@@ -1,4 +1,5 @@
 <?php session_start(); ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -75,18 +76,25 @@
                                     echo '</div>';
                                     unset($_SESSION['success']);
                                 }
-                            ?>
 
-                           
+                                if ($_SESSION['valid_text']) {
+                                    echo '<div class="card-body">
+                                    <div class="alert alert-danger" role="alert">';
+                                    echo $_SESSION['valid_text'];
+                                    echo '</div>';
+                                    unset($_SESSION['valid_text']);
+                                }
 
-                                <?php $comments = $STH;
-                                 foreach ($comments as $data): ?>
+                                 foreach ($STH as $data): ?>
 
                                     <div class="media">
                                         <img src=" <?php echo $data['user_image']; ?>" class="mr-3" alt="..." width="64" height="64">
                                         <div class="media-body">
                                             <h5 class="mt-0"> <?php echo $data['user_name']; ?> </h5>
-                                            <span><small> <?php echo $data['comment_date']; ?> </small></span>
+                                            <span><small> 
+                                                <?php echo date('d/m/Y', strtotime($data['comment_date'])); 
+                                               ?>
+                                             </small></span>
                                             <p>
                                                 <?php echo $data['user_comment']; ?>
                                             </p>
@@ -109,12 +117,12 @@
                                 <form action="store.php" method="post">
                                     <div class="form-group">
                                         <label for="exampleFormControlTextarea1">Имя</label>
-                                        <input name="name" required class="form-control" id="exampleFormControlTextarea1" />
+                                        <input class="form-control" name="name" value="<?php echo $_SESSION['name']?>" required  id="exampleFormControlTextarea1" />
                                        
                                     </div>
                                     <div class="form-group">
                                         <label for="exampleFormControlTextarea1">Сообщение</label>
-                                        <textarea name="text" required class="form-control" id="exampleFormControlTextarea1"
+                                        <textarea name="text" class="form-control" id="exampleFormControlTextarea1"
                                             rows="3"></textarea>
                                     </div>
                                     <button type="submit" class="btn btn-success" name="submit">Отправить</button>
