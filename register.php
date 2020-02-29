@@ -34,7 +34,10 @@
    $STH->execute([$email]);
    $email_exists = $STH->fetch();
 
-   $_SESSION['email_exists'] = ($email_exists[0] == $_SESSION['email']) ? 'Такая почта уже зарегистрирована' : 'valid';
+   if ( $_SESSION['email'] != 0) {
+    $_SESSION['email_exists'] = ($email_exists[0] == $_SESSION['email']) ? 'Такая почта уже зарегистрирована' : 'valid';
+   }
+  
 
    /* Проверка на заполнение поля Password */
    $_SESSION['pswrd_empty'] =  empty($_POST['password']) ? 'Создайте пароль' : 'valid';
@@ -54,16 +57,19 @@
         $_SESSION['pswrd_match'] = 'valid'; /* ПОЧЕМУ ВСЕГДА VALID  */
     }    
     
-    var_dump($_SESSION['name_empty']);echo'<br>';
-    var_dump($_SESSION['email_empty']);echo'<br>';
-    var_dump($_SESSION['email_exists']);echo'<br>';
-    var_dump($_SESSION['pswrd_empty']);echo'<br>';
-    var_dump($_SESSION['pswrd_length']);echo'<br>';
-    var_dump($_SESSION['pswrd_ntmchd']);echo'<br>';
-    var_dump($_SESSION['pswrd_match']);echo'<br>';
-    var_dump($_SESSION['password']);echo'<br>';
-    var_dump($_SESSION['password_confirmation']);echo'<br>';
-    var_dump($_SESSION['success']);echo'<br>';
+    echo' Иия не пустое <br>'; var_dump($_SESSION['name_empty']); echo'<br> <br>';
+    echo' Почта не пустая <br>'; var_dump($_SESSION['email_empty']); echo'<br><br>';
+    echo' Почта сессия <br>';var_dump($_SESSION['email']); echo'<br>';
+    echo' Почта пост<br>';var_dump($_POST['email']); echo'<br>';
+
+    echo' Почта не занята<br>'; var_dump($_SESSION['email_exists']); echo'<br><br>';
+    echo' Пароль не пустой<br>'; var_dump($_SESSION['pswrd_empty']); echo'<br><br>';
+    echo' Пароль не короче<br>'; var_dump($_SESSION['pswrd_length']); echo'<br><br>';
+    echo' Пароль не совпадает<br>'; var_dump($_SESSION['pswrd_ntmchd']); echo'<br><br>';
+    echo' Пароль совпадает<br>'; var_dump($_SESSION['pswrd_match']); echo'<br><br>';
+    echo' Пароль<br>'; var_dump($_SESSION['password']); echo'<br><br>';
+    echo' Подтверждение пароля<br>';  var_dump($_SESSION['password_confirmation']); echo'<br><br>';
+    echo' Валидная регисрация<br>'; var_dump($_SESSION['success']); echo'<br><br>';
 
     /* Запись в БД */ 
     if ($_SESSION['name_empty'] == $_SESSION['email_empty'] && $_SESSION['email_exists'] == $_SESSION['pswrd_empty'] && $_SESSION['pswrd_length'] == $_SESSION['pswrd_ntmchd'])  {
