@@ -19,28 +19,58 @@
     $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
     $pdo = new PDO('mysql:host=localhost;dbname=marlin_php', 'root', '', $options);     
 
+    /* Вывод сообщения об ошибке */
+    function set_flash($form_type, $message) {
+        $_SESSION[$form_type] = $message;
+    }
 
-   /* Проверка на заполнение поля Name */
-   $_SESSION['name_empty'] =  empty($_POST['name']) ? 'Введите имя' : 'valid';
+    function get_flash($form_type) {
+        echo $_SESSION[$form_type];
+        unset($_SESSION[$form_type]);
+    }
 
-   /* Проверка на заполнение поля E-mail */
-   $_SESSION['email_empty'] =  empty($_POST['email']) ? 'Укажите почтовый адрес' : 'valid';
+    /* Проверка на заполнение поля Name */
+    function required_name($name) {
+        if ($name == '') {
+            return 'Введите имя';
+        }
+    }
+    $message_name = required_name($_POST['name']);    
 
-   /* Валидация E-mail */
-   $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+    /* Проверка на заполнение поля E-mail */
 
-   /* Провверка почты на дубликат */
-   $STH = $pdo->prepare("SELECT email FROM registration WHERE email = ?");
-   $STH->execute([$email]);
-   $email_exists = $STH->fetch();
+    function required_email($email) {
+        if ($email == '') {
+            return 'Укажите почтовый адрес';
+        }
+    }
+    $message_email = required_email($_POST['email']);
 
-   if ( $_SESSION['email'] != 0) {
-    $_SESSION['email_exists'] = ($email_exists[0] == $_SESSION['email']) ? 'Такая почта уже зарегистрирована' : 'valid';
-   }
-  
+    /* Провверка почты на дубликат */
+    $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+    $STH = $pdo->prepare("SELECT email FROM registration WHERE email = ?");
+    $STH->execute([$email]);
+    $email_taken = $STH->fetch();
+    
+    function email_taken($email) {       
+        if ($email == '') {            
+        } elseif ($email[0] == $_POST['email']) {
+            return 'Такая почта уже зарегистрирована';            
+        }        
+    }
+    $message_email_taken = email_taken($email_taken); 
+   
+    
+    
+    
 
    /* Проверка на заполнение поля Password */
-   $_SESSION['pswrd_empty'] =  empty($_POST['password']) ? 'Создайте пароль' : 'valid';
+   function required_pswrd($pswrd) {
+        if ($pswrd== '') {
+            return 'Создайте пароль';
+        }
+    }
+   $message_pswrd = required_pswrd($_POST['password']);  
 
    /* Проверка пароля на количество символов */
    $_SESSION['pswrd_length'] = strlen($_POST['password']) <= 5 ? 'Пароль не должен быть короче 6 символов' : 'valid';
@@ -57,25 +87,14 @@
         $_SESSION['pswrd_match'] = 'valid'; /* ПОЧЕМУ ВСЕГДА VALID  */
     }    
     
-    echo' Иия не пустое <br>'; var_dump($_SESSION['name_empty']); echo'<br> <br>';
-    echo' Почта не пустая <br>'; var_dump($_SESSION['email_empty']); echo'<br><br>';
-    echo' Почта сессия <br>';var_dump($_SESSION['email']); echo'<br>';
-    echo' Почта пост<br>';var_dump($_POST['email']); echo'<br>';
-
-    echo' Почта не занята<br>'; var_dump($_SESSION['email_exists']); echo'<br><br>';
-    echo' Пароль не пустой<br>'; var_dump($_SESSION['pswrd_empty']); echo'<br><br>';
-    echo' Пароль не короче<br>'; var_dump($_SESSION['pswrd_length']); echo'<br><br>';
-    echo' Пароль не совпадает<br>'; var_dump($_SESSION['pswrd_ntmchd']); echo'<br><br>';
-    echo' Пароль совпадает<br>'; var_dump($_SESSION['pswrd_match']); echo'<br><br>';
-    echo' Пароль<br>'; var_dump($_SESSION['password']); echo'<br><br>';
-    echo' Подтверждение пароля<br>';  var_dump($_SESSION['password_confirmation']); echo'<br><br>';
-    echo' Валидная регисрация<br>'; var_dump($_SESSION['success']); echo'<br><br>';
-
     /* Запись в БД */ 
     if ($_SESSION['name_empty'] == $_SESSION['email_empty'] && $_SESSION['email_exists'] == $_SESSION['pswrd_empty'] && $_SESSION['pswrd_length'] == $_SESSION['pswrd_ntmchd'])  {
         
         $sql = "INSERT INTO registration (name, email, password) VALUES (:name, :email, :password)";
         $STH = $pdo->prepare($sql);
+
+        /* Валидация E-mail */
+        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
 
         /* Хеширование пароля перед записью*/
         $hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -156,12 +175,17 @@
                                         <label for="name" class="col-md-4 col-form-label text-md-right">Name</label>
 
                                         <div class="col-md-6">
-                                            <input id="name" type="text" class="form-control <?php echo empty($_POST['name']) ? '@error(\'name\') is-invalid @enderror': '';?>" name="name" autofocus value="<?php echo $_SESSION['name']?>"> 
-
+                                            <input id="name" type="text" class="form-control <?php echo required_name($_POST['name']) ? '@error(\'name\') is-invalid @enderror': '';?>" name="name" autofocus value=""> 
+                                             
                                             <?php 
-                                                if (empty($_POST['name'])) {
-                                                    echo '<span class="invalid-feedback" role="alert"><strong>' . $_SESSION['name_empty'] . '</strong></span>';
-                                                }                                                
+                                                if (required_name($_POST['name'])) {
+                                                    set_flash($_POST['name'], $message_name);
+                                                    echo '<span class="invalid-feedback" role="alert"><strong>'; 
+                                                    get_flash($_POST['name']); 
+                                                    echo '</strong></span>';
+                                                }                
+                                                                    
+                                                                      
                                             ?>
 
                                         </div>
@@ -171,15 +195,22 @@
                                         <label for="email" class="col-md-4 col-form-label text-md-right">E-Mail Address</label>
 
                                         <div class="col-md-6">
-                                            <input id="email" type="email" class="form-control <?php echo empty($_POST['email']) ? '@error(\'name\') is-invalid @enderror': ''; echo $email_exists[0] == $_SESSION['email'] ? '@error(\'name\') is-invalid @enderror': '';?>" name="email" value="<?php echo $_SESSION['email'] ?>">  
+                                            <input id="email" type="email" class="form-control <?php echo required_email($_POST['email']) ? '@error(\'name\') is-invalid @enderror': ''; echo email_taken($email_taken) ? '@error(\'name\') is-invalid @enderror': '';?>" name="email" value="<?php echo $_SESSION['email'] ?>">  
 
                                             <?php 
-                                                if (empty($_POST['email'])) {
-                                                    echo '<span class="invalid-feedback" role="alert"><strong>' . $_SESSION['email_empty'] . '</strong></span>';
+                                                if (required_email($email_taken)) {
+                                                    set_flash($_POST['email'], $message_email);
+                                                    echo '<span class="invalid-feedback" role="alert"><strong>';
+                                                    get_flash($email_taken); 
+                                                    echo '</strong></span>';
                                                 }
+                                                
 
-                                                if ($email_exists[0] == $_SESSION['email']) {
-                                                    echo '<span class="invalid-feedback" role="alert"><strong>' . $_SESSION['email_exists'] . '</strong></span>';                                   
+                                                if (email_taken($_POST['email'])) {
+                                                    set_flash($_POST['email'], $message_email_taken);
+                                                    echo '<span class="invalid-feedback" role="alert"><strong>';
+                                                    get_flash($_POST['email']);
+                                                    echo  '</strong></span>';                                   
                                                 } 
                                             ?>
                                         </div>
@@ -189,11 +220,14 @@
                                         <label for="password" class="col-md-4 col-form-label text-md-right">Password</label>
 
                                         <div class="col-md-6">
-                                            <input id="password" type="password" class="form-control <?php echo empty($_POST['password']) ? '@error(\'name\') is-invalid @enderror': ''; echo (strlen($_POST['password']) <= 5) ? '@error(\'name\') is-invalid @enderror': '';?>" name="password" value="<?php echo $_SESSION['password'] ?>" autocomplete="new-password">
+                                            <input id="password" type="password" class="form-control <?php echo required_pswrd($_POST['password']) ? '@error(\'name\') is-invalid @enderror': ''; echo (strlen($_POST['password']) <= 5) ? '@error(\'name\') is-invalid @enderror': '';?>" name="password" value="<?php echo $_SESSION['password'] ?>" autocomplete="new-password">
 
                                             <?php 
-                                                if (empty($_POST['password'])) {
-                                                    echo '<span class="invalid-feedback" role="alert"><strong>' . $_SESSION['pswrd_empty'] . '</strong></span>';
+                                                if (required_pswrd($_POST['password'])) {
+                                                    set_flash($_POST['password'], $message_pswrd);
+                                                    echo '<span class="invalid-feedback" role="alert"><strong>';
+                                                    get_flash($_POST['password']);
+                                                    echo '</strong></span>';
                                                 }
 
                                                 if (strlen($_POST['password']) <= 5) {
