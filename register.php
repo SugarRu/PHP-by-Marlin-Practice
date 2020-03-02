@@ -25,8 +25,11 @@
     }
 
     function get_flash($form_type) {
-        echo $_SESSION[$form_type];
-        unset($_SESSION[$form_type]);
+        if (isset($_POST)) {
+            echo $_SESSION[$form_type];
+            unset($_SESSION[$form_type]);
+        }
+        
     }
 
     /* Проверка на заполнение поля Name */
@@ -45,7 +48,7 @@
         }
     }
     $message_email = required_email($_POST['email']);
-    var_dump($message_email);
+    
 
     /* Провверка почты на дубликат */
     $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
@@ -55,12 +58,14 @@
     
     function email_taken($email) {       
         if ($email == '') {            
-        } elseif ($email[0] == $_POST['email']) {
+        } elseif ($email == $_POST['email']) {
             return 'Такая почта уже зарегистрирована';            
         }        
     }
-    $message_email_taken = email_taken($email_taken); 
-      
+    $message_email_taken = email_taken($email_taken[0]); 
+    var_dump($_POST);
+
+    
     
     
 
@@ -197,7 +202,7 @@
                                         <label for="email" class="col-md-4 col-form-label text-md-right">E-Mail Address</label>
 
                                         <div class="col-md-6">
-                                            <input id="email" type="email" class="form-control <?php echo required_email($_POST['email']) ? '@error(\'name\') is-invalid @enderror': ''; echo email_taken($email_taken) ? '@error(\'name\') is-invalid @enderror': '';?>" name="email" value="<?php echo $_SESSION['email'] ?>">  
+                                            <input id="email" type="email" class="form-control <?php echo required_email($_POST['email']) ? '@error(\'name\') is-invalid @enderror': ''; echo email_taken($email_taken[0]) ? '@error(\'name\') is-invalid @enderror': '';?>" name="email" value="<?php echo $_SESSION['email'] ?>">  
 
                                             <?php 
                                                 if  (required_email($_POST['email'])) {
@@ -208,10 +213,10 @@
                                                 }
                                                 
 
-                                                if (email_taken($email_taken)) {
-                                                    set_flash($email_taken, $message_email_taken);
+                                                if (email_taken($email_taken[0])) {
+                                                    set_flash($email_taken[0], $message_email_taken);
                                                     echo '<span class="invalid-feedback" role="alert"><strong>';
-                                                    get_flash($email_taken);
+                                                    get_flash($email_taken[0]);
                                                     echo  '</strong></span>';                                   
                                                 } 
                                             ?>
