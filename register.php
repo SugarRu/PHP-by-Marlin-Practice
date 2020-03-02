@@ -45,6 +45,7 @@
         }
     }
     $message_email = required_email($_POST['email']);
+    var_dump($message_email);
 
     /* Провверка почты на дубликат */
     $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
@@ -59,8 +60,7 @@
         }        
     }
     $message_email_taken = email_taken($email_taken); 
-   
-    
+      
     
     
 
@@ -73,20 +73,21 @@
    $message_pswrd = required_pswrd($_POST['password']);  
 
    /* Проверка пароля на количество символов */
-   $_SESSION['pswrd_length'] = strlen($_POST['password']) <= 5 ? 'Пароль не должен быть короче 6 символов' : 'valid';
+    function pswrd_length($pswrd) {
+        if (strlen($pswrd) <= 5) {
+            return 'Пароль не должен быть короче 6 символов';
+        }
+    }
+    $message_pswrd_length = pswrd_length($_POST['password']);    
 
    /* Проверка на совпадение паролей */
-   $_SESSION['password'] = $_POST['password'];
-   $_SESSION['password_confirmation'] = $_POST['password_confirmation']; 
+    function pswrd_confirm($pswrd, $pswrd_conf) {
+        if ($pswrd != $pswrd_conf && $pswrd != '') {
+            return 'Пароли не совпадают';
+        }
+    }   
+    $message_pswrd_confirm = pswrd_confirm($_POST['password'], $_POST['password_confirmation']);
 
-   if ($_SESSION['password'] != $_SESSION['password_confirmation'] && $_SESSION['password'] != 0) {       
-        $_SESSION['pswrd_ntmchd'] = 'Пароли не совпадают';
-        $_SESSION['name'] = $_POST['name'];
-        $_SESSION['email'] =  $_POST['email'];
-    } else {
-        $_SESSION['pswrd_match'] = 'valid'; /* ПОЧЕМУ ВСЕГДА VALID  */
-    }    
-    
     /* Запись в БД */ 
     if ($_SESSION['name_empty'] == $_SESSION['email_empty'] && $_SESSION['email_exists'] == $_SESSION['pswrd_empty'] && $_SESSION['pswrd_length'] == $_SESSION['pswrd_ntmchd'])  {
         
@@ -116,6 +117,7 @@
 
     }
 
+   
 ?>
 
 
@@ -198,18 +200,18 @@
                                             <input id="email" type="email" class="form-control <?php echo required_email($_POST['email']) ? '@error(\'name\') is-invalid @enderror': ''; echo email_taken($email_taken) ? '@error(\'name\') is-invalid @enderror': '';?>" name="email" value="<?php echo $_SESSION['email'] ?>">  
 
                                             <?php 
-                                                if (required_email($email_taken)) {
+                                                if  (required_email($_POST['email'])) {
                                                     set_flash($_POST['email'], $message_email);
                                                     echo '<span class="invalid-feedback" role="alert"><strong>';
-                                                    get_flash($email_taken); 
+                                                    get_flash($_POST['email']); 
                                                     echo '</strong></span>';
                                                 }
                                                 
 
-                                                if (email_taken($_POST['email'])) {
-                                                    set_flash($_POST['email'], $message_email_taken);
+                                                if (email_taken($email_taken)) {
+                                                    set_flash($email_taken, $message_email_taken);
                                                     echo '<span class="invalid-feedback" role="alert"><strong>';
-                                                    get_flash($_POST['email']);
+                                                    get_flash($email_taken);
                                                     echo  '</strong></span>';                                   
                                                 } 
                                             ?>
@@ -220,7 +222,7 @@
                                         <label for="password" class="col-md-4 col-form-label text-md-right">Password</label>
 
                                         <div class="col-md-6">
-                                            <input id="password" type="password" class="form-control <?php echo required_pswrd($_POST['password']) ? '@error(\'name\') is-invalid @enderror': ''; echo (strlen($_POST['password']) <= 5) ? '@error(\'name\') is-invalid @enderror': '';?>" name="password" value="<?php echo $_SESSION['password'] ?>" autocomplete="new-password">
+                                            <input id="password" type="password" class="form-control <?php echo required_pswrd($_POST['password']) ? '@error(\'name\') is-invalid @enderror': ''; echo pswrd_length($_POST['password']) ? '@error(\'name\') is-invalid @enderror': '';?>" name="password" value="<?php echo $_SESSION['password'] ?>" autocomplete="new-password">
 
                                             <?php 
                                                 if (required_pswrd($_POST['password'])) {
@@ -230,8 +232,11 @@
                                                     echo '</strong></span>';
                                                 }
 
-                                                if (strlen($_POST['password']) <= 5) {
-                                                    echo '<span class="invalid-feedback" role="alert"><strong>' . $_SESSION['pswrd_length'] . '</strong></span>';
+                                                if (pswrd_length($_POST['password'])) {
+                                                    set_flash($_POST['password'], $message_pswrd_length);
+                                                    echo '<span class="invalid-feedback" role="alert"><strong>';
+                                                    get_flash($_POST['password']);
+                                                    echo '</strong></span>';
                                                 }
                                             ?>
                                         </div>
@@ -241,13 +246,14 @@
                                         <label for="password-confirm" class="col-md-4 col-form-label text-md-right">Confirm Password</label>
 
                                         <div class="col-md-6">
-                                            <input id="password-confirm" type="password" class="form-control <?php echo $_SESSION['password'] != $_SESSION['password_confirmation'] ? '@error(\'name\') is-invalid @enderror': '';?>" name="password_confirmation"  autocomplete="new-password">
+                                            <input id="password-confirm" type="password" class="form-control <?php echo pswrd_confirm($_POST['password'], $_POST['password_confirmation']) ? '@error(\'name\') is-invalid @enderror': '';?>" name="password_confirmation"  autocomplete="new-password">
 
                                             <?php
-                                            if ($_SESSION['password'] != $_SESSION['password_confirmation']) {
-                                                echo '<span class="invalid-feedback" role="alert"><strong>' . $_SESSION['pswrd_ntmchd'] . '</strong></span>';
-                                                unset($_SESSION['pswrd_ntmchd']);
-                                                unset($_SESSION['password_confirmation']);
+                                            if (pswrd_confirm($_POST['password'], $_POST['password_confirmation'])) {
+                                                set_flash($_POST['password'], $message_pswrd_confirm);
+                                                echo '<span class="invalid-feedback" role="alert"><strong>';
+                                                get_flash($_POST['password']);
+                                                echo '</strong></span>';                                                
                                             }
                                             ?>
                                         </div>
