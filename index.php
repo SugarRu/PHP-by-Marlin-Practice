@@ -17,20 +17,11 @@
     <link href="css/app.css" rel="stylesheet">
 </head>
 
-<?php 
-    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
-    $pdo = new PDO('mysql:host=localhost;dbname=marlin_php', 'root', '', $options);
-
-    $sql = 'SELECT * FROM comments ORDER BY id DESC';
-    $STH = $pdo->prepare($sql);
-    $STH->execute();    
-?>
-
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="index.html">
+                <a class="navbar-brand" href="index.php">
                     Project
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -52,7 +43,7 @@
                             <a class="nav-link" href="login.html">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="register.html">Register</a>
+                            <a class="nav-link" href="register.php">Register</a>
                         </li>
                     </ul>
                 </div>
@@ -77,15 +68,8 @@
                                     unset($_SESSION['success']);
                                 }
 
-                                if ($_SESSION['valid_text']) {
-                                    echo '<div class="card-body">
-                                    <div class="alert alert-danger" role="alert">';
-                                    echo $_SESSION['valid_text'];
-                                    echo '</div>';
-                                    unset($_SESSION['valid_text']);
-                                }
-
-                                 foreach ($STH as $data): ?>
+                                
+                                foreach ($_SESSION['comments'] as $data): ?>
 
                                     <div class="media">
                                         <img src=" <?php echo $data['user_image']; ?>" class="mr-3" alt="..." width="64" height="64">
@@ -113,11 +97,21 @@
                                 <h3>Оставить комментарий</h3>
                             </div>
 
+                            <?php 
+                                if ($_SESSION['message']) {
+                                    echo '<div class="card-body">
+                                    <div class="alert alert-danger" role="alert">';
+                                    echo $_SESSION['message'];
+                                    echo '</div>';
+                                    unset($_SESSION['message']);
+                                }
+                            ?>
+
                             <div class="card-body">
-                                <form action="store.php" method="post">
+                                <form action="index_handler.php" method="post">
                                     <div class="form-group">
                                         <label for="exampleFormControlTextarea1">Имя</label>
-                                        <input class="form-control" name="name" value="<?php echo $_SESSION['name']?>" required  id="exampleFormControlTextarea1" />
+                                        <input class="form-control" name="name" value="<?php echo $_SESSION['name']?>" id="exampleFormControlTextarea1" />
                                        
                                     </div>
                                     <div class="form-group">
