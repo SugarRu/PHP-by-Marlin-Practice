@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,10 +59,16 @@
                                         <label for="email" class="col-md-4 col-form-label text-md-right">E-Mail Address</label>
 
                                         <div class="col-md-6">
-                                            <input id="email" type="email" class="form-control is-invalid " name="email"  autocomplete="email" autofocus >
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>Ошибка валидации</strong>
-                                                </span>
+                                            <input id="email" type="email" class="form-control<?php echo $_SESSION['message_email'] ? ' is-invalid': '' ?>" name="email"  autocomplete="email" value="<?php echo $_SESSION['email']?>" >
+                                               <?php
+                                                    if ($_SESSION['message_email']) {
+                                                        echo '<span class="invalid-feedback" role="alert">
+                                                        <strong>';
+                                                        echo $_SESSION['message_email'];
+                                                        echo '</strong></span>';
+                                                        unset($_SESSION['message_email']);
+                                                    }
+                                                ?>
                                         </div>
                                     </div>
 
@@ -69,7 +76,18 @@
                                         <label for="password" class="col-md-4 col-form-label text-md-right">Password</label>
 
                                         <div class="col-md-6">
-                                            <input id="password" type="password" class="form-control" name="password"  autocomplete="current-password">
+                                            <input id="password" type="password" class="form-control<?php echo $_SESSION['message_pswrd'] ? ' is-invalid': '' ?>" name="password"  autocomplete="current-password">
+
+                                            <?php
+                                                    if ($_SESSION['message_pswrd']) {
+                                                        echo '<span class="invalid-feedback" role="alert">
+                                                        <strong>';
+                                                        echo $_SESSION['message_pswrd'];
+                                                        echo '</strong></span>';
+                                                        unset($_SESSION['message_pswrd']);
+                                                    }
+                                                ?>
+
                                         </div>
                                     </div>
 
