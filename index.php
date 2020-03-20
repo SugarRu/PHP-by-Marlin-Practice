@@ -39,12 +39,23 @@
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="login.html">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="register.php">Register</a>
-                        </li>
+                        <?php 
+                            if ($_SESSION['user']) {
+                                echo '
+                                    <li class="nav-item">
+                                    <a class="nav-link" href="logout.php">Logout</a>
+                                    </li>';
+                            } else {
+                                echo '
+                                <li class="nav-item">
+                                <a class="nav-link" href="login.php">Login</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="register.php">Register</a>
+                                </li>';
+                            }
+                        
+                        ?>
                     </ul>
                 </div>
             </div>
@@ -66,10 +77,10 @@
                                     echo $_SESSION['success'];
                                     echo '</div>';
                                     unset($_SESSION['success']);
-                                }
-
+                                }                               
                                 
                                 foreach ($_SESSION['comments'] as $data): ?>
+                                
 
                                     <div class="media">
                                         <img src=" <?php echo $data['user_image']; ?>" class="mr-3" alt="..." width="64" height="64">
@@ -107,21 +118,34 @@
                                 }
                             ?>
 
-                            <div class="card-body">
-                                <form action="index_handler.php" method="post">
-                                    <div class="form-group">
-                                        <label for="exampleFormControlTextarea1">Имя</label>
-                                        <input class="form-control" name="name" value="<?php echo $_SESSION['name']?>" id="exampleFormControlTextarea1" />
-                                       
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="exampleFormControlTextarea1">Сообщение</label>
-                                        <textarea name="text" class="form-control" id="exampleFormControlTextarea1"
-                                            rows="3"></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-success" name="submit">Отправить</button>
-                                </form>
-                            </div>
+                            <?php 
+                                if ($_SESSION['user']) {
+                                    echo '
+                                        <div class="card-body">
+                                            <form action="index_handler.php" method="post">
+                                                <div class="form-group">
+                                                    <label for="exampleFormControlTextarea1">Сообщение</label>
+                                                    <textarea name="text" class="form-control" id="exampleFormControlTextarea1"
+                                                rows="3"></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-success" name="submit">Отправить</button>
+                                            </form>
+                                        </div>
+                                    ';
+                                } else {
+                                    echo '
+                                        <p> Чтобы оставить комментарий, надо авторизироваться</p>
+                                        <ul>
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="login.php">Login</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="register.php">Register</a>
+                                            </li> 
+                                        </ul>                                   
+                                    ';
+                                }
+                            ?>
                         </div>
                     </div>
                 </div>
@@ -131,3 +155,9 @@
 </body>
 
 </html>
+
+<!-- <div class="form-group">
+<label for="exampleFormControlTextarea1">Имя</label>
+<input class="form-control" name="name" value="<?php echo $_SESSION['name']?>" id="exampleFormControlTextarea1" />
+
+</div> -->
